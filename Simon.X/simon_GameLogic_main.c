@@ -8,6 +8,7 @@
 
 #include "xc.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 char tracker[100] = {'\0'};
@@ -56,10 +57,18 @@ char getButton(){
     return keyChar;
 }
 
+void increaseTracker(int round){
+    int num = rand();
+    int newVal = num%4;
+    char charVal = '\0';
+    sprintf(charVal, "%d", newVal);
+    tracker[round-1] = charVal;
+}
+
 
 int gameRound(int round){
     //Add a random value (Red, Green, Blue, or Yellow), to the tracker list here
-    increaseTracker();
+    increaseTracker(round);
     
     int failed = 0;
     
