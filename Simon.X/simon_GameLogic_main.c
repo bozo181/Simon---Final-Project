@@ -10,10 +10,58 @@
 #include <stdio.h>
 
 
-char tracker[100];
+char tracker[100] = {'\0'};
+
+//This function will take in a value, and output the corresponding LCD screen, iLED, and buzzer values
+void outputInterface(char key){
+    lcd_clearScreen();
+    
+    if(key == '1'){
+        lcd_printStr("Red");
+        writeColor(255,0,0);
+        sound(261);
+    }else if(key == '*'){
+        lcd_printStr("Green");
+        writeColor(0,128,0);
+        sound(311);
+    }else if(key == 'D'){
+        lcd_printStr("Blue");
+        writeColor(0,0,255);
+        sound(370);
+    }else if (key == 'A'){
+        lcd_printStr("Yellow");
+        writeColor(255,255,0);
+        sound(440);
+    }
+}
+
+
+
+char getButton(){
+    int reset = 0;
+    char tempChar;
+    char keyChar;
+    while(reset == 0){
+        tempChar = readKeyPadRAW();
+        if(tempChar != 0){
+            if(reset == 0){
+                keyChar = tempChar;
+                reset = 1;
+            }
+        }else{
+            reset = 0;
+        }
+    }
+    
+    return keyChar;
+}
+
 
 int gameRound(int round){
     //Add a random value (Red, Green, Blue, or Yellow), to the tracker list here
+    increaseTracker();
+    
+    int failed = 0;
     
     char outMessage[20];
     sprintf(outMessage, "Round %d. Ready? Begin.", round); //Step 5
@@ -21,7 +69,7 @@ int gameRound(int round){
     
     int x = 0;
     for(; tracker[x] != '\0'; x++){
-        outputInstruction(tracker[x]); //Step 6
+        outputInterface(tracker[x]); //Step 6
     }
     
     lcd_printStr("Your Turn!"); //Step 8
@@ -29,9 +77,18 @@ int gameRound(int round){
     //Get user input here
     //Make sure to check that it matches the correct tracker value
     //Maybe have a catch case for when the user "disappears"? As in, if the user does not input anything for longer than 10 seconds, its game over?
+    int check = 0;
+    for(; tracker[check] != '\0'; check++){
+        //Gets input from the user. Will not move forward until they have pressed a button
+        char keyChar = getButton();
+        outputInterface(keyChar);
+               
+        if(keyChar != tracker[check]){
+            failed = 1;
+        }
+    }
     
-    
-    
+    return failed;
 }
 
 void newGame(){
